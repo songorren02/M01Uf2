@@ -1,5 +1,9 @@
 #!/bin/bash
 
+IP=`ip address | grep inet | grep enp0s3 | cut -c 10-19`
+
+echo $IP
+
 SERVER="localhost"
 PORT="$PORT"
 
