@@ -1,12 +1,13 @@
 #!/bin/bash
 
 CLIENT="localhost"
-PORT="$PORT"
+PORT="3333"
+TIMEOUT="1"
 
 echo "Servidor de EFTP"
 
 echo "(0) Listen"
-DATA=`nc -l -p  -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 echo $DATA
 
@@ -24,12 +25,12 @@ sleep 1
 echo "OK_HEADER" | nc $CLIENT $PORT
 
 echo "(4) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 echo $DATA
 
 echo "(7) Test & send"
-if [ "$DATA" != "BOOM" ]
+if [ "$DATA" != "BOOOM" ]
 then
 	echo "ERROR 3: BAD HANDSHAKE"
 	sleep 1
@@ -37,8 +38,11 @@ then
 	exit 2
 fi
 
+sleep 1
+echo "OK_HANDSHAKE" | nc $CLIENT $PORT
+
 echo "(8) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 echo $DATA
 
 echo "(12) Test & store & send"
@@ -59,7 +63,7 @@ sleep 1
 echo "OK_FILE_NAME" | nc $CLIENT $PORT
 
 echo "(13) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 echo "(16) Store & send"
 if [ "$DATA" == "" ]
