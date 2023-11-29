@@ -6,6 +6,7 @@ echo $IP
 
 SERVER="localhost"
 PORT="3333"
+TIMEOUT="1"
 
 echo "Cliente de EFTP"
 
@@ -14,7 +15,7 @@ echo "EFTP 1.0" | nc $SERVER $PORT
 
 
 echo "(2) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 echo $DATA
 
@@ -32,7 +33,7 @@ echo "BOOM" | nc $SERVER $PORT
 
 
 echo "(6) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 echo $DATA
 
@@ -55,7 +56,7 @@ echo "FILE_NAME $FILE $MD5"  | nc $SERVER $PORT
 
 
 echo "(11) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 
 echo "(14) Test & Send"
@@ -70,7 +71,7 @@ cat imgs/fary1.txt | nc $SERVER $PORT
 
 
 echo "(15) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 if [ "$DATA" != "OK_DATA" ]
 then
@@ -87,7 +88,7 @@ echo "FILE_MD5 $FILE_MD5" | nc $SERVER $PORT
 
 
 echo "(19) Listen"
-DATA=`nc -l -p $PORT -w 0`
+DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 echo "FIN"
 exit 0
