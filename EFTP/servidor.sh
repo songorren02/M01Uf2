@@ -13,11 +13,30 @@ echo $DATA
 
 
 echo "(3) Test & Send"
-if [ "$DATA" != "EFTP 1.0" ]
+PREFIX=`$DATA | cut -d " " -f 1`
+VERSION=`$DATA | cut -d " " -f 2`
+
+if [ "$PREFIX" != "EFTP" ]
 then
 	echo "ERROR 1: BAD HEADER"
 	sleep 1
 	echo "KO_HEADER" | nc $CLIENT $PORT
+	exit 1
+fi
+
+if [ "$VERION" != "1.0" ]
+then
+	echo "ERROR 1: BAD HEADER"
+	sleep 1
+	echo "KO_HEADER" | nc $CLIENT $PORT
+	exit 1
+fi
+
+CLIENT=`echo $DATA | cut -d " " -f 3`
+
+if [ "$CLIENT" == "" ]
+then
+	echo "ERROR: NO IP"
 	exit 1
 fi
 
@@ -91,7 +110,7 @@ DATA_FILE=`cat $FILE_NAME`
 
 if [ $DATA_FILE == "" ]
 then
-	echo "KO_DATA"
+	echo "ERROR 6: KO_DATA"
 	sleep 1
 	echo "KO_DATA" | nc $CLIENT $PORT
 fi
@@ -112,9 +131,9 @@ PREFIX=`echo $DATA | cut -d " " -f 1`
 
 if [ "$PREFIX" != "FILE_MD5" ]
 then
-	echo "BAD_PREFIX"
+	echo "ERROR 7: BAD_PREFIX"
 	sleep 1
-	echo "KO_PREFIX" | nc $CLIENT $PORT
+	echo "KO_FILE_MD5" | nc $CLIENT $PORT
 fi
 
 sleep 1
@@ -124,12 +143,16 @@ echo "OK_PREFIX" | nc $CLIENT $PORT
 FILE_MD5_CLIENT=`echo $DATA | cut -d " " -f 2`
 FILE_MD5_SERVER=`cat $DATA_FILE | md5sum | cut -d " " -f 1`
 
-if [ $FILE_MD5_CLIENT != $FILE_MD5_SERVER ]
+if [ "$FILE_MD5_CLIENT" != "$FILE_MD5_SERVER" ]
 then
 	echo "KO_FILE_MD5"
 	sleep 1
 	echo "KO_FILE_MD5" | nc $CLIENT $PORT
 fi
+
+echo "OK_FILE_MD5"
+sleep 1
+echo "OK_FILE_MD5" | nc $CLIENT $PORT
 
 echo "FIN"
 exit 0
