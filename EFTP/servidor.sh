@@ -13,8 +13,8 @@ echo $DATA
 
 
 echo "(3) Test & Send"
-PREFIX=`$DATA | cut -d " " -f 1`
-VERSION=`$DATA | cut -d " " -f 2`
+PREFIX=`echo $DATA | cut -d " " -f 1`
+VERSION=`echo $DATA | cut -d " " -f 2`
 
 if [ "$PREFIX" != "EFTP" ]
 then
@@ -24,7 +24,7 @@ then
 	exit 1
 fi
 
-if [ "$VERION" != "1.0" ]
+if [ "$VERSION" != "1.0" ]
 then
 	echo "ERROR 1: BAD HEADER"
 	sleep 1
@@ -63,6 +63,31 @@ fi
 sleep 1
 echo "OK_HANDSHAKE" | nc $CLIENT $PORT
 
+
+echo "(7a) Listen NUM_FILES"
+DATA=`nc -l -p $PORT -w $TIMEOUT`
+
+echo $DATA
+
+echo "(7b) Test & Send OK/KO NUM_FILES"
+PREFIX=`echo $DATA | cut -d " " -f 1`
+
+if [ "$PREFIX" != "NUM_FILES" ]
+then
+	echo "ERROR 4: BAD PREFIX"
+	sleep 1
+	echo "KO_NUM_FILES" | nc $CLIENT $PORT
+	exit 3
+fi
+
+echo "OK_NUM_FILES" | nc $CLIENT $PORT
+
+NUM_FILES=`echo $DATA | cut d " " -f 2`
+
+for NUM in `seq $NUM_FILES`
+do
+
+echo "Archivo numero $NUM"
 
 echo "(8) Listen"
 DATA=`nc -l -p $PORT -w $TIMEOUT`
@@ -153,6 +178,8 @@ fi
 echo "OK_FILE_MD5"
 sleep 1
 echo "OK_FILE_MD5" | nc $CLIENT $PORT
+
+done
 
 echo "FIN"
 exit 0

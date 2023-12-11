@@ -10,9 +10,7 @@ else
 	SERVER="$1"
 fi
 
-SERVER="localhost"
-
-IP=`ip address | grep inet | grep enp0s3 | cut -c 10-19`
+IP=`ip address | grep inet | grep -i enp0s3 | cut -c 10-19`
 
 echo $IP
 
@@ -57,13 +55,33 @@ then
 fi
 
 
+echo "(9a) SEND NUM FILES "
+NUM_FILES=`ls imgs/ | wc -l`
+
+sleep 1
+
+echo "NUM_FILES $NUM_FILES" | nc $SERVER $PORT
+
+
+echo "(9b) Listen KO/OK NUM_FILES"
+
+if [ "$DATA" =! "OK_NUM_FILES" ]
+then
+	echo "ERROR 3.1: BAD PREFIX"
+	exit 2
+fi
+
+DATA=`nc -l -p $PORT -w $TIMEOUT`
+
+for FILE_NAME in `ls imgs/`
+do
 #Enviar el archivo
 echo "(10) Send"
 MD5=`echo $FILE | md5sum | cut -d " " -f 1`
-FILE="fary1.txt"
+FILE_NAME="fary1.txt"
 
 sleep 1
-echo "FILE_NAME $FILE $MD5"  | nc $SERVER $PORT
+echo "FILE_NAME $FILE_NAME $MD5"  | nc $SERVER $PORT
 
 
 echo "(11) Listen"
@@ -91,7 +109,7 @@ then
 fi
 
 echo "(18) Send"
-FILE_MD5=`cat $FILE | md5sum | cut -d " " -f 1`
+FILE_MD5=`cat $FILE_NAME | md5sum | cut -d " " -f 1`
 
 echo "FILE_MD5"
 sleep 1
@@ -108,6 +126,8 @@ then
 	echo "ERROR 6: BAD FILE MD5"
 	exit 6
 fi
+
+done
 
 echo "FIN"
 exit 0
