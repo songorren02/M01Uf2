@@ -94,109 +94,107 @@ NUM_FILES=`echo $DATA | cut d " " -f 2`
 echo "(7c) Loop" 
 for NUM in `seq $NUM_FILES`
 do
-echo "Archivo numero $NUM"
-
-
-echo "(8) Listen"
-DATA=`nc -l -p $PORT -w $TIMEOUT`
-echo $DATA
-
-
-#Comprueba el prefijo y el nombre del archivo. Luego se lo guarda en inbox
-echo "(12) Test & store & send"
-#COMPROBAR PREFIX
-PREFIX=`echo $DATA | cut -d " " -f 1`
-
-if [ "$PREFIX" != "FILE_NAME" ]
-then
-	echo "ERROR 4: BAD PREFIX"
+	echo "Archivo numero $NUM"
+	
+	
+	echo "(8) Listen"
+	DATA=`nc -l -p $PORT -w $TIMEOUT`
+	echo $DATA
+	
+	
+	#Comprueba el prefijo y el nombre del archivo. Luego se lo guarda en inbox
+	echo "(12) Test & store & send"
+	#COMPROBAR PREFIX
+	PREFIX=`echo $DATA | cut -d " " -f 1`
+	
+	if [ "$PREFIX" != "FILE_NAME" ]
+	then
+		echo "ERROR 4: BAD PREFIX"
+		sleep 1
+		echo "KO_FILE_NAME" | nc $CLIENT $PORT
+		exit 3
+	fi
+	
+	echo "OK_FILE_NAME"
 	sleep 1
-	echo "KO_FILE_NAME" | nc $CLIENT $PORT
-	exit 3
-fi
-
-echo "OK_FILE_NAME"
-sleep 1
-echo "OK_FILE_NAME" | nc $CLIENT $PORT
-
-#COMPROBAR MD5
-FILE_NAME=`echo $DATA | cut -d " " -f 2`
-MD5_CLIENT=`echo $DATA | cut -d " " -f 3`
-MD5_TEST=`echo $FILE_NAME | md5sum | cut -d " " -f 1`
-
-if [ "$MD5_CLIENT" != "$MD5_TEST" ]
-then
-	echo "ERROR 5: BAD FILE_MD5"
+	echo "OK_FILE_NAME" | nc $CLIENT $PORT
+	
+	#COMPROBAR MD5
+	FILE_NAME=`echo $DATA | cut -d " " -f 2`
+	MD5_CLIENT=`echo $DATA | cut -d " " -f 3`
+	MD5_TEST=`echo $FILE_NAME | md5sum | cut -d " " -f 1`
+	
+	if [ "$MD5_CLIENT" != "$MD5_TEST" ]
+	then
+		echo "ERROR 5: BAD FILE_MD5"
+		sleep 1
+		echo "KO_FILE_MD5" | nc $CLIENT $PORT
+	 	exit 4
+	fi
+	
+	echo "OK_MD5"
 	sleep 1
-	echo "KO_FILE_MD5" | nc $CLIENT $PORT
- 	exit 4
-fi
-
-echo "OK_MD5"
-sleep 1
-echo "OK_MD5" | nc $CLIENT $PORT
-
-
-#Escuchar el contenido del archivo en cuestión y guardarlo en inbox/Archivo (Se crea en ese momento)
-echo "(13) Listen"
-#Guardar en inbox lo que nos llega. 
-> [!IMPORTANT]
-> PREGUNTAR SOBRE INBOX A RAFA
-#DATA=`nc -l -p $PORT -w $TIMEOUT`
-nc -l -p $PORT -w $TIMEOUT > inbox/$FILE_NAME
-
-
-#Comprobamos el interior del archivo y hacemos un reporte
-echo "(16) Store & send"
-DATA_FILE=`cat inbox/$FILE_NAME`
-
-if [ $DATA_FILE == "" ]
-then
-	echo "ERROR 6: KO_DATA"
+	echo "OK_MD5" | nc $CLIENT $PORT
+	
+	
+	#Escuchar el contenido del archivo en cuestión y guardarlo en inbox/Archivo (Se crea en ese momento)
+	echo "(13) Listen"
+	#Guardar en inbox lo que nos llega. 
+	#DATA=`nc -l -p $PORT -w $TIMEOUT`
+	nc -l -p $PORT -w $TIMEOUT > inbox/$FILE_NAME
+	
+	
+	#Comprobamos el interior del archivo y hacemos un reporte
+	echo "(16) Store & send"
+	DATA_FILE=`cat inbox/$FILE_NAME`
+	
+	if [ $DATA_FILE == "" ]
+	then
+		echo "ERROR 6: KO_DATA"
+		sleep 1
+		echo "KO_DATA" | nc $CLIENT $PORT
+	 	exit 4
+	fi
+	
+	echo "OK_DATA" 
 	sleep 1
-	echo "KO_DATA" | nc $CLIENT $PORT
- 	exit 4
-fi
-
-echo "OK_DATA" 
-sleep 1
-echo "OK_DATA" | nc $CLIENT $PORT
-
-
-echo "(17) Listen"
-DATA=`nc -l -p $PORT -w $TIMEOUT`
-
-
-echo "(20) Test & Send"
-#COMPROBAMOS EL PREFIX
-PREFIX=`echo $DATA | cut -d " " -f 1`
-
-if [ "$PREFIX" != "FILE_MD5" ]
-then
-	echo "ERROR 7: BAD_PREFIX"
+	echo "OK_DATA" | nc $CLIENT $PORT
+	
+	
+	echo "(17) Listen"
+	DATA=`nc -l -p $PORT -w $TIMEOUT`
+	
+	
+	echo "(20) Test & Send"
+	#COMPROBAMOS EL PREFIX
+	PREFIX=`echo $DATA | cut -d " " -f 1`
+	
+	if [ "$PREFIX" != "FILE_MD5" ]
+	then
+		echo "ERROR 7: BAD_PREFIX"
+		sleep 1
+		echo "KO_FILE_MD5" | nc $CLIENT $PORT
+	 	exit 5
+	fi
+	
 	sleep 1
-	echo "KO_FILE_MD5" | nc $CLIENT $PORT
- 	exit 5
-fi
-
-sleep 1
-echo "OK_PREFIX" | nc $CLIENT $PORT
-
-#COMPROBAMOS EL MD5
-FILE_MD5_CLIENT=`echo $DATA | cut -d " " -f 2`
-FILE_MD5_SERVER=`$DATA_FILE | md5sum | cut -d " " -f 1`
-
-if [ "$FILE_MD5_CLIENT" != "$FILE_MD5_SERVER" ]
-then
-	echo "KO_FILE_MD5"
+	echo "OK_PREFIX" | nc $CLIENT $PORT
+	
+	#COMPROBAMOS EL MD5
+	FILE_MD5_CLIENT=`echo $DATA | cut -d " " -f 2`
+	FILE_MD5_SERVER=`$DATA_FILE | md5sum | cut -d " " -f 1`
+	
+	if [ "$FILE_MD5_CLIENT" != "$FILE_MD5_SERVER" ]
+	then
+		echo "KO_FILE_MD5"
+		sleep 1
+		echo "KO_FILE_MD5" | nc $CLIENT $PORT
+	 	exit 6
+	fi
+	
+	echo "OK_DATA_FILE_MD5"
 	sleep 1
-	echo "KO_FILE_MD5" | nc $CLIENT $PORT
- 	exit 6
-fi
-
-echo "OK_DATA_FILE_MD5"
-sleep 1
-echo "OK_DATA_FILE_MD5" | nc $CLIENT $PORT
+	echo "OK_DATA_FILE_MD5" | nc $CLIENT $PORT
 
 done
 
