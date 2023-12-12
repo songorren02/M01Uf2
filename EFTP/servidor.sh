@@ -80,6 +80,8 @@ then
 	exit 3
 fi
 
+echo "OK_NUM_FILES"
+sleep 1
 echo "OK_NUM_FILES" | nc $CLIENT $PORT
 
 NUM_FILES=`echo $DATA | cut d " " -f 2`

@@ -6,11 +6,12 @@ echo $0
 if [ $# == 0 ]
 then
 	SERVER="localhost"
-else
+elif [ $# -ge 1 ]
+then
 	SERVER="$1"
 fi
 
-IP=`ip address | grep inet | grep -i enp0s3 | cut -c 10-19`
+IP=`ip address | grep inet | grep enp0s3 | cut -c 10-19`
 
 echo $IP
 
@@ -18,6 +19,15 @@ PORT="3333"
 TIMEOUT="1"
 
 echo "Cliente de EFTP"
+
+if [ $# -eq 2 ]
+then
+	echo "(-1) Reset"
+	echo "RESET" | nc $SERVER $PORT
+
+	sleep 2
+fi
+
 
 echo "(1) send"
 echo "EFTP 1.0 $IP" | nc $SERVER $PORT
@@ -55,7 +65,7 @@ then
 fi
 
 
-echo "(9a) SEND NUM FILES "
+echo "(9a) SEND NUM_FILES"
 NUM_FILES=`ls imgs/ | wc -l`
 
 sleep 1
@@ -65,7 +75,7 @@ echo "NUM_FILES $NUM_FILES" | nc $SERVER $PORT
 
 echo "(9b) Listen KO/OK NUM_FILES"
 
-if [ "$DATA" =! "OK_NUM_FILES" ]
+if [ "$DATA" != "OK_NUM_FILES" ]
 then
 	echo "ERROR 3.1: BAD PREFIX"
 	exit 2
@@ -75,6 +85,7 @@ DATA=`nc -l -p $PORT -w $TIMEOUT`
 
 for FILE_NAME in `ls imgs/`
 do
+
 #Enviar el archivo
 echo "(10) Send"
 MD5=`echo $FILE | md5sum | cut -d " " -f 1`
