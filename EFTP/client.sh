@@ -20,8 +20,7 @@ TIMEOUT=1
 
 echo "Cliente de EFTP"
 
-> [!IMPORTANT]
-> PREGUNTAR A RAFA SOBRE EL RESET
+#PREGUNTA RAFA
 if [ $# -eq 2 ]
 then
 	echo "(-1) Reset"
@@ -97,64 +96,64 @@ fi
 echo "(9c) Loop"
 for FILE_NAME in `ls imgs/`
 do
-
-
-#Enviar el archivo
-echo "(10) Send"
-MD5=`echo $FILE_NAME | md5sum | cut -d " " -f 1`
-#FILE_NAME="fary1.txt"
-
-sleep 1
-echo "FILE_NAME $FILE_NAME $MD5"  | nc $SERVER $PORT
-
-
-echo "(11) Listen"
-DATA=`nc -l -p $PORT -w $TIMEOUT`
-
-
-#Comrpueba si ha ido bien el envío y envía el contenido del archivo
-echo "(14) Test & Send"
-if [ "$DATA" != "OK_FILE_NAME" ]
-then
-	echo "ERROR 4: WRONG FILE_NAME"
-	exit 3
-fi
-
-sleep 1
-cat imgs/$FILE_NAME | nc $SERVER $PORT
-
-
-#Comprueba si ha ido bien el envío del contenido del archivo (DATA)
-echo "(15) Listen & Test"
-DATA=`nc -l -p $PORT -w $TIMEOUT`
-
-if [ "$DATA" != "OK_DATA" ]
-then
-	echo "ERROR 5: BAD DATA"
-	exit 4
-fi
-
-
-#Envia el MD5 del contenido del archivo
-echo "(18) Send"
-DATA_FILE_MD5=`cat imgs/$FILE_NAME | md5sum | cut -d " " -f 1`
-
-echo "FILE_MD5"
-sleep 1
-echo "FILE_MD5 $DATA_FILE_MD5" | nc $SERVER $PORT
-
-
-echo "(19) Listen"
-DATA=`nc -l -p $PORT -w $TIMEOUT`
-
-
-#Comprueba que el envío del md5 del contenido del archivo haya ido bien
-echo "(21) Test"
-if [ "$DATA" != "OK_DATA_FILE_MD5" ]
-then
-	echo "ERROR 6: BAD DATA_FILE_MD5"
-	exit 6
-fi
+	
+	
+	#Enviar el archivo
+	echo "(10) Send"
+	MD5=`echo $FILE_NAME | md5sum | cut -d " " -f 1`
+	#FILE_NAME="fary1.txt"
+	
+	sleep 1
+	echo "FILE_NAME $FILE_NAME $MD5"  | nc $SERVER $PORT
+	
+	
+	echo "(11) Listen"
+	DATA=`nc -l -p $PORT -w $TIMEOUT`
+	
+	
+	#Comrpueba si ha ido bien el envío y envía el contenido del archivo
+	echo "(14) Test & Send"
+	if [ "$DATA" != "OK_FILE_NAME" ]
+	then
+		echo "ERROR 4: WRONG FILE_NAME"
+		exit 3
+	fi
+	
+	sleep 1
+	cat imgs/$FILE_NAME | nc $SERVER $PORT
+	
+	
+	#Comprueba si ha ido bien el envío del contenido del archivo (DATA)
+	echo "(15) Listen & Test"
+	DATA=`nc -l -p $PORT -w $TIMEOUT`
+	
+	if [ "$DATA" != "OK_DATA" ]
+	then
+		echo "ERROR 5: BAD DATA"
+		exit 4
+	fi
+	
+	
+	#Envia el MD5 del contenido del archivo
+	echo "(18) Send"
+	DATA_FILE_MD5=`cat imgs/$FILE_NAME | md5sum | cut -d " " -f 1`
+	
+	echo "FILE_MD5"
+	sleep 1
+	echo "FILE_MD5 $DATA_FILE_MD5" | nc $SERVER $PORT
+	
+	
+	echo "(19) Listen"
+	DATA=`nc -l -p $PORT -w $TIMEOUT`
+	
+	
+	#Comprueba que el envío del md5 del contenido del archivo haya ido bien
+	echo "(21) Test"
+	if [ "$DATA" != "OK_DATA_FILE_MD5" ]
+	then
+		echo "ERROR 6: BAD DATA_FILE_MD5"
+		exit 6
+	fi
 
 done
 
