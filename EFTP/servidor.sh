@@ -71,9 +71,10 @@ DATA=`nc -l -p $PORT -w $TIMEOUT`
 echo $DATA
 
 
-#Comprueba si el prefijo es correctp y la cantidad de archivos que va a enviar
+#Comprueba si el prefijo es correcto y la cantidad de archivos que va a enviar
 echo "(7b) Test & Send OK/KO NUM_FILES"
 PREFIX=`echo $DATA | cut -d " " -f 1`
+echo $PREFIX
 
 if [ "$PREFIX" != "NUM_FILES" ]
 then
@@ -87,11 +88,12 @@ echo "OK_NUM_FILES"
 sleep 1
 echo "OK_NUM_FILES" | nc $CLIENT $PORT
 
-NUM_FILES=`echo $DATA | cut d " " -f 2`
-
 
 #Empezamos el bucle for, la cantidad de veces como cantidad de archivos tiene el cliente
-echo "(7c) Loop" 
+echo "(7c) Loop"
+NUM_FILES=`echo $DATA | cut -d " " -f 2`
+
+echo $NUM_FILES
 for NUM in `seq $NUM_FILES`
 do
 	echo "Archivo numero $NUM"
